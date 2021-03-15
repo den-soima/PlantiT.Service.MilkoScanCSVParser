@@ -10,11 +10,28 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE PROCEDURE [dbo].[sp_MS_MilkoScanDataSampleInsert]
-  @szFileName    NVARCHAR(255)
-, @szFileBody    NVARCHAR(MAX)
-, @tFileCreated  NVARCHAR(255)
-, @tFileModified NVARCHAR(255)
-, @nKey          INT = 0 OUTPUT 
+      @nMilkoScanDataLink        INT              
+    , @tAnalysisTime             DATETIME           
+    , @szProductName             NVARCHAR(128)
+    , @szProductCode             NVARCHAR(32) 
+    , @szSampleType              NVARCHAR(32) 
+    , @szSampleNumber            NVARCHAR(32) 
+    , @szSampleComment           NVARCHAR(256)
+    , @szInstrumentName          NVARCHAR(64) 
+    , @szInstrumentSerialNumber  NVARCHAR(32) 
+    , @rFat                      REAL         
+    , @rRefFat                   REAL          
+    , @rWhey                     REAL         
+    , @rRefWhey                  REAL         
+    , @rDryParticles             REAL         
+    , @rRefDryParticles          REAL         
+    , @rDryFatFreeParticles      REAL         
+    , @rRefDryFatFreeParticles   REAL         
+    , @rFreezingPoint            REAL         
+    , @rRefFreezingPoint         REAL         
+    , @rLactose                  REAL         
+    , @rRefLactose               REAL         
+    , @nKey                      INT = 0 OUTPUT 
 AS
 
 /****************************************************************************
@@ -35,16 +52,48 @@ BEGIN
     BEGIN TRANSACTION
 
         BEGIN TRY
-            INSERT INTO tbl_MS_MilkoScanData ( szFileName
-                                             , szFileBody
-                                             , tFileCreated
-                                             , tFileModified
-                                             , tCreated)
-            VALUES( @szFileName
-                  , @szFileBody
-                  , @tFileCreated
-                  , @tFileModified
-                  , @CurrentDate)
+            INSERT INTO tbl_MS_MilkoScanDataSample ( nMilkoScanDataLink     
+                                                   , tAnalysisTime        
+                                                   , szProductName          
+                                                   , szProductCode          
+                                                   , szSampleType           
+                                                   , szSampleNumber        
+                                                   , szSampleComment        
+                                                   , szInstrumentName       
+                                                   , szInstrumentSerialNumber
+                                                   , rFat                   
+                                                   , rRefFat                
+                                                   , rWhey                  
+                                                   , rRefWhey              
+                                                   , rDryParticles         
+                                                   , rRefDryParticles
+                                                   , rDryFatFreeParticles   
+                                                   , rRefDryFatFreeParticles
+                                                   , rFreezingPoint      
+                                                   , rRefFreezingPoint      
+                                                   , rLactose               
+                                                   , rRefLactose)            
+            VALUES( @nMilkoScanDataLink      
+                  , @tAnalysisTime           
+                  , @szProductName           
+                  , @szProductCode           
+                  , @szSampleType            
+                  , @szSampleNumber          
+                  , @szSampleComment         
+                  , @szInstrumentName        
+                  , @szInstrumentSerialNumber
+                  , @rFat                    
+                  , @rRefFat                 
+                  , @rWhey                   
+                  , @rRefWhey                
+                  , @rDryParticles           
+                  , @rRefDryParticles        
+                  , @rDryFatFreeParticles    
+                  , @rRefDryFatFreeParticles 
+                  , @rFreezingPoint          
+                  , @rRefFreezingPoint       
+                  , @rLactose                
+                  , @rRefLactose)             
 
             COMMIT TRANSACTION
             SELECT @nKey = SCOPE_IDENTITY()

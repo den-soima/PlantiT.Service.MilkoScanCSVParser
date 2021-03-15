@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PlantiT.Service.MilkoScanCSVParser.Helpers;
 using PlantiT.Service.MilkoScanCSVParser.Services;
 
 namespace PlantiT.Service.MilkoScanCSVParser
@@ -20,8 +21,10 @@ namespace PlantiT.Service.MilkoScanCSVParser
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddSingleton<ServiceSettings>();
                     services.AddSingleton<FileReader>();
                     services.AddSingleton<Repository>();
+                    services.AddSingleton<FileArchive>();
                 });
     }
 }

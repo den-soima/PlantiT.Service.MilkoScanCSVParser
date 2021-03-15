@@ -13,17 +13,17 @@ namespace PlantiT.Service.MilkoScanCSVParser.Models
         public string InstrumentName { get; set; }
         public string InstrumentSerialNumber { get; set; }
         public decimal Fat { get; set; }
-        public string RefFat { get; set; }
+        public decimal? RefFat { get; set; }
         public decimal Whey { get; set; }
-        public string RefWhey { get; set; }
+        public decimal? RefWhey { get; set; }
         public decimal DryParticles { get; set; }
-        public string RefDryParticles { get; set; }
+        public decimal? RefDryParticles { get; set; }
         public decimal DryFatFreeParticles { get; set; }
-        public string RefDryFatFreeParticles { get; set; }
+        public decimal? RefDryFatFreeParticles { get; set; }
         public decimal FreezingPoint { get; set; }
-        public string RefFreezingPoint { get; set; }
+        public decimal? RefFreezingPoint { get; set; }
         public decimal Lactose { get; set; }
-        public string RefLactose { get; set; }
+        public decimal? RefLactose { get; set; }
         
     }
 }

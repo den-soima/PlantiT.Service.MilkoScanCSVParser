@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
 using Microsoft.Extensions.Configuration;
+using PlantiT.Service.MilkoScanCSVParser.Helpers;
 using PlantiT.Service.MilkoScanCSVParser.Models;
 
 
@@ -10,17 +11,13 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
 {
     public class FileReader
     {
-        private readonly string _filePath;
+        private readonly ServiceSettings _serviceSettings;
         private StreamReader _reader;
         private const int _maxLinesToRead = 2;
 
-        public FileReader(IConfiguration configuration)
+        public FileReader(ServiceSettings serviceSettings)
         {
-#if DEBUG
-            _filePath = Directory.GetCurrentDirectory() + "/" + configuration["Parameters:CSVFilePath"];
-#else
-            _filePath = configuration["Parameters:CSVFilePath"];
-#endif
+            _serviceSettings = serviceSettings;
         }
 
         /// <summary>
@@ -33,7 +30,14 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             try
             {
                 int linePointer = 0;
-                _reader = new StreamReader(File.OpenRead(_filePath));
+
+                string filePath = _serviceSettings.FilePath;
+
+                if (File.Exists(filePath))
+                {
+                    
+                }
+                _reader = new StreamReader(File.OpenRead(filePath));
 
                 MilkoScanData milkoScanData = new MilkoScanData();
                 List<MilkoScanParameter> parameters = new List<MilkoScanParameter>();
@@ -65,9 +69,9 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                     }
                 }
 
-                milkoScanData.FileName = Path.GetFileName(_filePath);
-                milkoScanData.FileCreated = File.GetCreationTime(_filePath);
-                milkoScanData.FileModified = File.GetLastWriteTime(_filePath);
+                milkoScanData.FileName = Path.GetFileName(filePath);
+                milkoScanData.FileCreated = File.GetCreationTime(filePath);
+                milkoScanData.FileModified = File.GetLastWriteTime(filePath);
                 milkoScanData.ReadingTime = DateTime.Now;
                 milkoScanData.Parameters = parameters;
                 milkoScanData.MilkoScanSample = SetValues(parameters);
@@ -93,18 +97,28 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 InstrumentName = parameters[6].Value,
                 InstrumentSerialNumber = parameters[7].Value,
                 Fat = decimal.Parse(parameters[8].Value),
-                RefFat = parameters[9].Value,
+                RefFat = string.IsNullOrWhiteSpace(parameters[9].Value) ? null : decimal.Parse(parameters[9].Value),
                 Whey = decimal.Parse(parameters[10].Value),
-                RefWhey = parameters[11].Value,
+                RefWhey = string.IsNullOrWhiteSpace(parameters[11].Value) ? null : decimal.Parse(parameters[11].Value),
                 DryParticles = decimal.Parse(parameters[12].Value),
-                RefDryParticles = parameters[13].Value,
+                RefDryParticles = string.IsNullOrWhiteSpace(parameters[13].Value)
+                    ? null
+                    : decimal.Parse(parameters[13].Value),
                 DryFatFreeParticles = decimal.Parse(parameters[14].Value),
-                RefDryFatFreeParticles = parameters[15].Value,
+                RefDryFatFreeParticles = string.IsNullOrWhiteSpace(parameters[15].Value)
+                    ? null
+                    : decimal.Parse(parameters[15].Value),
                 FreezingPoint = decimal.Parse(parameters[16].Value),
-                RefFreezingPoint = parameters[17].Value,
+                RefFreezingPoint = string.IsNullOrWhiteSpace(parameters[17].Value)
+                    ? null
+                    : decimal.Parse(parameters[17].Value),
                 Lactose = decimal.Parse(parameters[18].Value),
-                RefLactose = parameters[19].Value
+                RefLactose = string.IsNullOrWhiteSpace(parameters[19].Value)
+                    ? null
+                    : decimal.Parse(parameters[19].Value)
             };
         }
+
+      
     }
 }

@@ -46,7 +46,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
         public async Task<int> InsertMilkoScanDataSample(int milkoScanDataId, MilkoScanSample sample)
         {
             var p = new DynamicParameters();
-            p.Add("nMilkoscanDataLink", milkoScanDataId);
+            p.Add("nMilkoScanDataLink", milkoScanDataId);
             p.Add("tAnalysisTime", sample.AnalysisTime);
             p.Add("szProductName", sample.ProductName);
             p.Add("szProductCode", sample.ProductCode);
@@ -73,7 +73,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             
             return await WithConnection(async conn =>
             {
-                await conn.QueryAsync<int>("sp_MS_MilkoScanDataParametersInsert",
+                await conn.QueryAsync<int>("sp_MS_MilkoScanDataSampleInsert",
                    p,
                    commandType: CommandType.StoredProcedure
                 );
