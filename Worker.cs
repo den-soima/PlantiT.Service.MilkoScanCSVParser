@@ -36,13 +36,22 @@ namespace PlantiT.Service.MilkoScanCSVParser
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (!stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Service started");
+            }
+            else
+            {
+                _logger.LogInformation("Service stoped");
+            }
+            
             _loggerService.WriteLog("Service"
                 , $"started by {Environment.UserName} with interval - {_serviceSettings.FileReadingInterval}ms"
                 , 0);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                
 
                 if (File.Exists(_serviceSettings.FilePath))
                 {
@@ -88,6 +97,8 @@ namespace PlantiT.Service.MilkoScanCSVParser
                         _loggerService.WriteLog($"ERROR - Insert to DB"
                             , $"{e.Message}"
                             , 0);
+                        
+                        _logger.LogError("Error Insert data to DB");
                     }
 
                     // Archive file

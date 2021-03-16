@@ -1,4 +1,4 @@
-USE [MES]
+USE [dbExchange]
 GO
 -- Drop procedure if exist
 DROP PROCEDURE IF EXISTS [dbo].[sp_MS_MilkoScanDataInsert];
