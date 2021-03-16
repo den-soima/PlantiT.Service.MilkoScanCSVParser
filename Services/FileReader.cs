@@ -27,61 +27,50 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
         /// <returns></returns>
         public MilkoScanData ReadFile()
         {
-            try
+            int linePointer = 0;
+
+            string filePath = _serviceSettings.FilePath;
+            
+            _reader = new StreamReader(File.OpenRead(filePath));
+
+            MilkoScanData milkoScanData = new MilkoScanData();
+            List<MilkoScanParameter> parameters = new List<MilkoScanParameter>();
+
+            while (!_reader.EndOfStream && linePointer < _maxLinesToRead)
             {
-                int linePointer = 0;
+                linePointer++;
 
-                string filePath = _serviceSettings.FilePath;
+                var line = _reader.ReadLine();
+                var values = line?.Split(",");
 
-                if (File.Exists(filePath))
+                milkoScanData.FileBody = linePointer == 2 ? line : String.Empty;
+
+                for (int i = 0; i < values?.Length; i++)
                 {
-                    
-                }
-                _reader = new StreamReader(File.OpenRead(filePath));
-
-                MilkoScanData milkoScanData = new MilkoScanData();
-                List<MilkoScanParameter> parameters = new List<MilkoScanParameter>();
-
-                while (!_reader.EndOfStream && linePointer < _maxLinesToRead)
-                {
-                    linePointer++;
-
-                    var line = _reader.ReadLine();
-                    var values = line?.Split(",");
-
-                    milkoScanData.FileBody = linePointer == 2 ? line : String.Empty;
-
-                    for (int i = 0; i < values?.Length; i++)
+                    if (linePointer == 1)
                     {
-                        if (linePointer == 1)
+                        parameters.Add(new MilkoScanParameter
                         {
-                            parameters.Add(new MilkoScanParameter
-                            {
-                                Id = i,
-                                Key = values[i],
-                                Value = ""
-                            });
-                        }
-                        else if (linePointer == 2)
-                        {
-                            parameters[i].Value = values[i];
-                        }
+                            Id = i,
+                            Key = values[i],
+                            Value = ""
+                        });
+                    }
+                    else if (linePointer == 2)
+                    {
+                        parameters[i].Value = values[i];
                     }
                 }
-
-                milkoScanData.FileName = Path.GetFileName(filePath);
-                milkoScanData.FileCreated = File.GetCreationTime(filePath);
-                milkoScanData.FileModified = File.GetLastWriteTime(filePath);
-                milkoScanData.ReadingTime = DateTime.Now;
-                milkoScanData.Parameters = parameters;
-                milkoScanData.MilkoScanSample = SetValues(parameters);
-
-                return milkoScanData;
             }
-            catch (Exception e)
-            {
-                return null;
-            }
+
+            milkoScanData.FileName = Path.GetFileName(filePath);
+            milkoScanData.FileCreated = File.GetCreationTime(filePath);
+            milkoScanData.FileModified = File.GetLastWriteTime(filePath);
+            milkoScanData.ReadingTime = DateTime.Now;
+            milkoScanData.Parameters = parameters;
+            milkoScanData.MilkoScanSample = SetValues(parameters);
+
+            return milkoScanData;
         }
 
         private MilkoScanSample SetValues(List<MilkoScanParameter> parameters)
@@ -118,7 +107,5 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                     : decimal.Parse(parameters[19].Value)
             };
         }
-
-      
     }
 }

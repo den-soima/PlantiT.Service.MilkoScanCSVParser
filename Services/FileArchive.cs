@@ -14,15 +14,17 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             _serviceSettings = serviceSettings;
         }
 
-
-        public bool Execute()
+        public string Execute()
         {
-            if (File.Exists(_serviceSettings.FilePath))
+            string filePath = _serviceSettings.FilePath;
+            string archivePath = _serviceSettings.ArchivePath;
+            
+            if (File.Exists(filePath))
             {
-                File.Move(_serviceSettings.FilePath, _serviceSettings.ArchivePath);
+                File.Move(filePath, archivePath);
             }
 
-            return File.Exists(_serviceSettings.ArchivePath);
+            return File.Exists(archivePath) ? archivePath : null;
         }
     }
 }

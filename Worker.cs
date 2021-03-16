@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -19,41 +20,91 @@ namespace PlantiT.Service.MilkoScanCSVParser
         private readonly FileReader _fileReader;
         private readonly Repository _repository;
         private readonly FileArchive _fileArchive;
+        private readonly LoggerService _loggerService;
 
 
-        public Worker(ILogger<Worker> logger,ServiceSettings serviceSettings,  FileReader fileReader, Repository repository, FileArchive fileArchive)
+        public Worker(ILogger<Worker> logger, ServiceSettings serviceSettings,
+            FileReader fileReader, Repository repository, FileArchive fileArchive, LoggerService loggerService)
         {
             _logger = logger;
             _serviceSettings = serviceSettings;
             _fileReader = fileReader;
             _repository = repository;
             _fileArchive = fileArchive;
+            _loggerService = loggerService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _loggerService.WriteLog("Service"
+                , $"started by {Environment.UserName} with interval - {_serviceSettings.FileReadingInterval}ms"
+                , 0);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                
+
                 if (File.Exists(_serviceSettings.FilePath))
                 {
+                    _loggerService.WriteLog($"({Path.GetFileName(_serviceSettings.FilePath)}) file observed"
+                        , $"start reading {DateTime.Now.ToString(new CultureInfo("es-ES"))}"
+                        , 1);
                     // Read CSV file
                     MilkoScanData milkoScanData = _fileReader.ReadFile();
- 
-                    //TODO: add try catch
-                    // Write Milkoscan reading data to DB
-                    var milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
-                
-                    // Write Milkoscan parameters to DB
 
-                    if (milkoScanDataId > 0)
+                    _loggerService.WriteLog($"File path"
+                        , $"{_serviceSettings.FilePath}"
+                        , 3);
+                    _loggerService.WriteLog($"File created"
+                        , $"{milkoScanData.FileCreated}"
+                        , 3);
+
+                    _loggerService.WriteLog($"File modified"
+                        , $"{milkoScanData.FileModified}"
+                        , 3);
+
+                    _loggerService.WriteLog($"File body"
+                        , $"({milkoScanData.FileBody})"
+                        , 3);
+
+                    // Write Milkoscan data/sample to DB
+                    try
                     {
-                        var milkoScanDataSampleId = await _repository.InsertMilkoScanDataSample(milkoScanDataId, milkoScanData.MilkoScanSample);
+                        var milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
+
+                        _loggerService.WriteLog($"New row added to table tbl_MS_MilkoScanData"
+                            , $"id = {milkoScanDataId}"
+                            , 2);
+
+                        var milkoScanDataSampleId =
+                            await _repository.InsertMilkoScanDataSample(milkoScanDataId, milkoScanData.MilkoScanSample);
+
+                        _loggerService.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
+                            , $"id = {milkoScanDataSampleId}"
+                            , 2);
                     }
-                
+                    catch (Exception e)
+                    {
+                        _loggerService.WriteLog($"ERROR - Insert to DB"
+                            , $"{e.Message}"
+                            , 0);
+                    }
+
                     // Archive file
-                    var result =_fileArchive.Execute();
+                    var result = _fileArchive.Execute();
+
+                    if (result != null)
+                    {
+                        _loggerService.WriteLog($"File archived"
+                            , $"path = {result}"
+                            , 2);
+                    }
+                    else
+                    {
+                        _loggerService.WriteLog($"ERROR File archiving failed"
+                            , $"archive path: {_serviceSettings.ArchivePath}"
+                            , 0);
+                    }
                 }
 
                 await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);

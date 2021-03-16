@@ -11,32 +11,34 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
         public string FilePath => GetCSVFilePath();
 
         public string ArchivePath => GetArchivePath();
+
+        public string LogPath => GetLogFilePath();
         
 
         private readonly string _filePath;
+        private readonly string _logPath;
 
         public ServiceSettings(IConfiguration configuration)
         {
 #if DEBUG
             _filePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFilePath"];
+            _logPath = Directory.GetCurrentDirectory() + configuration["Parameters:LogDirectoryPath"];
 #else
             _filePath = configuration["Parameters:CSVFilePath"];
+            _logPath = configuration["Parameters:LogDirectoryPath"];
 #endif
-
             FileReadingInterval = Int32.Parse(configuration["Parameters:FileReadingInterval"]);
         }
 
         private string GetCSVFilePath()
         {
-            string filePath = _filePath.EndsWith("/") ? _filePath.Remove(_filePath.Length - 1) : _filePath;
-
-            if (File.Exists(filePath))
+            if (File.Exists(_filePath))
             {
-                return filePath;
+                return _filePath;
             }
-            else if (Directory.Exists(filePath))
+            else if (Directory.Exists(_filePath))
             {
-                var files = Directory.GetFiles(filePath);
+                var files = Directory.GetFiles(_filePath);
                 foreach (var file in files)
                 {
                     if (Path.GetExtension(file) == ".csv")
@@ -52,9 +54,25 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
         private string GetArchivePath()
         {
             var dir = Path.GetDirectoryName(FilePath) + @"/" + "Archive" + @"/";
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
             var name = Path.GetFileNameWithoutExtension(FilePath)
                        + "_archive_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv";
             return dir + name;
+        }
+        
+        private string GetLogFilePath()
+        {
+            if (!Directory.Exists(_logPath))
+            {
+                Directory.CreateDirectory(_logPath);
+            }
+            
+            return _logPath + "Log_MilkoScanCSVParser_" + DateTime.Now.ToString("yyyyMM") + ".log";
         }
     }
 }

@@ -25,6 +25,7 @@ namespace PlantiT.Service.MilkoScanCSVParser
                     services.AddSingleton<FileReader>();
                     services.AddSingleton<Repository>();
                     services.AddSingleton<FileArchive>();
+                    services.AddSingleton<LoggerService>();
                 });
     }
 }

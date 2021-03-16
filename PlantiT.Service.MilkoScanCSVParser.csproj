@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CMD" />
       <Folder Include="Files\CSV Sample\Archive" />
       <Folder Include="Files\Log" />
     </ItemGroup>
