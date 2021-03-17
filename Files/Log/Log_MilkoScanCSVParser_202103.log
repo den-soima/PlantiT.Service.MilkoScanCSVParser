@@ -77,3 +77,157 @@
            - New row added to table tbl_MS_MilkoScanData : id = 3
            - New row added to table tbl_MS_MilkoScanDataSample : id = 3
            - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/MilcoskanData_archive_20210316_195359.csv
+16/3/2021 20:45:31 - Service : started by dso with interval - 5000ms
+16/3/2021 21:30:55 - Service : started by dso with interval - 5000ms
+16/3/2021 21:37:38 - Service : started by dso with interval - 5000ms
+      - () file observed : start reading 16/3/2021 21:37:38
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 4
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 4
+16/3/2021 21:37:41 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213741.csv
+      - () file observed : start reading 16/3/2021 21:37:46
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 5
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 5
+16/3/2021 21:37:46 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213746.csv
+      - () file observed : start reading 16/3/2021 21:37:51
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 6
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 6
+16/3/2021 21:37:51 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213751.csv
+      - () file observed : start reading 16/3/2021 21:37:56
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 7
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 7
+16/3/2021 21:37:56 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213756.csv
+      - () file observed : start reading 16/3/2021 21:38:01
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 8
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 8
+16/3/2021 21:38:01 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213801.csv
+      - () file observed : start reading 16/3/2021 21:38:06
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 9
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 9
+16/3/2021 21:38:06 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213806.csv
+      - () file observed : start reading 16/3/2021 21:38:11
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 10
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 10
+16/3/2021 21:38:11 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/_archive_20210316_213811.csv
+16/3/2021 21:39:39 - Service : started by dso with interval - 5000ms
+      - () file observed : start reading 16/3/2021 21:39:39
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 11
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 11
+16/3/2021 21:44:41 - Service : started by dso with interval - 5000ms
+      - () file observed : start reading 16/3/2021 21:44:41
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 12
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 12
+16/3/2021 21:51:20 - Service : started by dso with interval - 5000ms
+      - () file observed : start reading 16/3/2021 21:51:20
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 13
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 13
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/MilcoskanData_archive_20210316_215137.csv
+16/3/2021 21:52:59 - Service : started by dso with interval - 5000ms
+16/3/2021 21:53:54 - Service : started by dso with interval - 5000ms
+16/3/2021 21:55:05 - Service : started by dso with interval - 5000ms
+16/3/2021 21:56:12 - Service : started by dso with interval - 5000ms
+16/3/2021 21:57:37 - Service : started by dso with interval - 5000ms
+16/3/2021 22:02:48 - Service : started by dso with interval - 5000ms
+      - (Export test milk.csv) file observed : start reading 16/3/2021 22:03:31
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/15/2021 10:03:56
+                - File modified : 03/15/2021 10:03:56
+                - File body : (8/23/2020 10:48:23 AM,Молоко сире,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,4.72,)
+           - New row added to table tbl_MS_MilkoScanData : id = 14
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 14
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/Export test milk_archive_20210316_220334.csv
+16/3/2021 22:20:27 - Service : started by dso with interval - 5000ms
+      - (MilcoskanData.csv) file observed : start reading 16/3/2021 22:20:27
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 15
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 15
+16/3/2021 22:20:30 - ERROR File archiving failed : archive path: /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/
+16/3/2021 22:21:30 - Service : started by dso with interval - 5000ms
+16/3/2021 22:26:40 - Service : started by dso with interval - 5000ms
+      - (Export test milk.csv) file observed : start reading 16/3/2021 22:26:45
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/15/2021 10:03:56
+                - File modified : 03/15/2021 10:03:56
+                - File body : (8/23/2020 10:48:23 AM,Молоко сире,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,4.72,)
+           - New row added to table tbl_MS_MilkoScanData : id = 16
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 16
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/Export test milk_archive_20210316_222646.csv
+16/3/2021 22:35:41 - Service : started by dso with interval - 5000ms
+      - (MilcoskanData.csv) file observed : start reading 16/3/2021 22:37:17
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 17
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 17
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/MilcoskanData_archive_20210316_223719.csv
+16/3/2021 22:48:30 - Service : started by dso with interval - 5000ms
+      - (Export test milk.csv) file observed : start reading 16/3/2021 22:48:30
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/15/2021 10:03:56
+                - File modified : 03/15/2021 10:03:56
+                - File body : (8/23/2020 10:48:23 AM,Молоко сире,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,4.72,)
+           - New row added to table tbl_MS_MilkoScanData : id = 18
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 18
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/Exporttestmilk_archive_20210316_224833.csv
+16/3/2021 22:58:30 - Service : started by dso with interval - 5000ms
+      - (Export test milk.csv) file observed : start reading 16/3/2021 22:59:15
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/15/2021 10:03:56
+                - File modified : 03/15/2021 10:03:56
+                - File body : (8/23/2020 10:48:23 AM,Молоко сире,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,4.72,)
+           - New row added to table tbl_MS_MilkoScanData : id = 19
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 19
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/Export test milk_archive_20210316_225916.csv
+17/3/2021 11:09:28 - Service : started by dso with interval - 5000ms
+      - (MilcoskanData.csv) file observed : start reading 17/3/2021 11:14:03
+                - File path : /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/
+                - File created : 03/16/2021 19:04:30
+                - File modified : 03/16/2021 19:04:30
+                - File body : (3/16/2021 10:48:23 AM,Молоко test,MilkRaw,Normal,1над,,MSCMars_Kupyansk,91847756,3.33,,3.02,,12.08,,8.60,,-0.508,,9.99,)
+           - New row added to table tbl_MS_MilkoScanData : id = 20
+           - New row added to table tbl_MS_MilkoScanDataSample : id = 20
+           - File archived : path = /Users/dso/Dev/PlantiT.Service.MilkoScanCSVParser/Files/CSV Sample/Archive/MilcoskanData_archive_20210317_111405.csv
+17/3/2021 11:48:30 - Service : started by dso with interval - 5000ms

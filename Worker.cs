@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,66 +14,67 @@ using PlantiT.Service.MilkoScanCSVParser.Models;
 
 namespace PlantiT.Service.MilkoScanCSVParser
 {
+    [SuppressMessage("ReSharper", "TemplateIsNotCompileTimeConstantProblem")]
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
         private readonly ServiceSettings _serviceSettings;
         private readonly FileReader _fileReader;
         private readonly Repository _repository;
-        private readonly FileArchive _fileArchive;
-        private readonly LoggerService _loggerService;
+        private readonly FileArchiver _fileArchiver;
+        private readonly WorkerLogger _workerLogger;
 
 
         public Worker(ILogger<Worker> logger, ServiceSettings serviceSettings,
-            FileReader fileReader, Repository repository, FileArchive fileArchive, LoggerService loggerService)
+            FileReader fileReader, Repository repository, FileArchiver fileArchiver, WorkerLogger workerLogger)
         {
             _logger = logger;
             _serviceSettings = serviceSettings;
             _fileReader = fileReader;
             _repository = repository;
-            _fileArchive = fileArchive;
-            _loggerService = loggerService;
+            _fileArchiver = fileArchiver;
+            _workerLogger = workerLogger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Service started");
-            }
-            else
-            {
-                _logger.LogInformation("Service stoped");
-            }
-            
-            _loggerService.WriteLog("Service"
+            string filePath = _serviceSettings.FilePath;
+            string archivePath = _serviceSettings.ArchivePath;
+            string logPath = _serviceSettings.LogPath;
+#if DEBUG
+            _logger.LogInformation("Service settings:"
+                                   + $"\r\n filePath - {filePath}"
+                                   + $"\r\n archivePath - {archivePath}"
+                                   + $"\r\n logPath - {logPath}"
+                , filePath, archivePath, logPath);
+#endif
+            _workerLogger.WriteLog("Service"
                 , $"started by {Environment.UserName} with interval - {_serviceSettings.FileReadingInterval}ms"
                 , 0);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                
+                // Read CSV file
+                MilkoScanData milkoScanData = _fileReader.ReadFile();
 
-                if (File.Exists(_serviceSettings.FilePath))
+                if (milkoScanData != null)
                 {
-                    _loggerService.WriteLog($"({Path.GetFileName(_serviceSettings.FilePath)}) file observed"
+                    _workerLogger.WriteLog($"({milkoScanData.FileName}) file observed"
                         , $"start reading {DateTime.Now.ToString(new CultureInfo("es-ES"))}"
                         , 1);
-                    // Read CSV file
-                    MilkoScanData milkoScanData = _fileReader.ReadFile();
-
-                    _loggerService.WriteLog($"File path"
+                    
+                    _workerLogger.WriteLog($"File path"
                         , $"{_serviceSettings.FilePath}"
                         , 3);
-                    _loggerService.WriteLog($"File created"
+                    _workerLogger.WriteLog($"File created"
                         , $"{milkoScanData.FileCreated}"
                         , 3);
 
-                    _loggerService.WriteLog($"File modified"
+                    _workerLogger.WriteLog($"File modified"
                         , $"{milkoScanData.FileModified}"
                         , 3);
 
-                    _loggerService.WriteLog($"File body"
+                    _workerLogger.WriteLog($"File body"
                         , $"({milkoScanData.FileBody})"
                         , 3);
 
@@ -81,38 +83,38 @@ namespace PlantiT.Service.MilkoScanCSVParser
                     {
                         var milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
 
-                        _loggerService.WriteLog($"New row added to table tbl_MS_MilkoScanData"
+                        _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanData"
                             , $"id = {milkoScanDataId}"
                             , 2);
 
                         var milkoScanDataSampleId =
                             await _repository.InsertMilkoScanDataSample(milkoScanDataId, milkoScanData.MilkoScanSample);
 
-                        _loggerService.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
+                        _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
                             , $"id = {milkoScanDataSampleId}"
                             , 2);
                     }
                     catch (Exception e)
                     {
-                        _loggerService.WriteLog($"ERROR - Insert to DB"
+                        _workerLogger.WriteLog($"ERROR - Insert to DB"
                             , $"{e.Message}"
                             , 0);
-                        
+
                         _logger.LogError("Error Insert data to DB");
                     }
 
                     // Archive file
-                    var result = _fileArchive.Execute();
+                    var result = _fileArchiver.Execute(milkoScanData.FilePath);
 
                     if (result != null)
                     {
-                        _loggerService.WriteLog($"File archived"
+                        _workerLogger.WriteLog($"File archived"
                             , $"path = {result}"
                             , 2);
                     }
                     else
                     {
-                        _loggerService.WriteLog($"ERROR File archiving failed"
+                        _workerLogger.WriteLog($"ERROR File archiving failed"
                             , $"archive path: {_serviceSettings.ArchivePath}"
                             , 0);
                     }

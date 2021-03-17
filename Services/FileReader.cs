@@ -30,8 +30,33 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             int linePointer = 0;
 
             string filePath = _serviceSettings.FilePath;
+
+            if (!File.Exists(filePath))
+            {
+                if (Directory.Exists(filePath))
+                {
+                    var files = Directory.GetFiles(filePath);
+                    foreach (var file in files)
+                    {
+                        if (Path.GetExtension(file) == ".csv")
+                        {
+                            filePath = file;
+                            break;
+                        }
+                    }
+                    
+                }
+            }
             
-            _reader = new StreamReader(File.OpenRead(filePath));
+//TODO: Add duplicate check Hash
+
+
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+            
+            _reader = new StreamReader(filePath);
 
             MilkoScanData milkoScanData = new MilkoScanData();
             List<MilkoScanParameter> parameters = new List<MilkoScanParameter>();
@@ -66,10 +91,17 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             milkoScanData.FileName = Path.GetFileName(filePath);
             milkoScanData.FileCreated = File.GetCreationTime(filePath);
             milkoScanData.FileModified = File.GetLastWriteTime(filePath);
+            milkoScanData.FilePath = filePath;
             milkoScanData.ReadingTime = DateTime.Now;
             milkoScanData.Parameters = parameters;
-            milkoScanData.MilkoScanSample = SetValues(parameters);
 
+            if (parameters.Count == 20)
+            {
+                milkoScanData.MilkoScanSample = SetValues(parameters);
+            }
+
+            _reader.Close();
+            
             return milkoScanData;
         }
 
@@ -88,7 +120,9 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 Fat = decimal.Parse(parameters[8].Value),
                 RefFat = string.IsNullOrWhiteSpace(parameters[9].Value) ? null : decimal.Parse(parameters[9].Value),
                 Whey = decimal.Parse(parameters[10].Value),
-                RefWhey = string.IsNullOrWhiteSpace(parameters[11].Value) ? null : decimal.Parse(parameters[11].Value),
+                RefWhey = string.IsNullOrWhiteSpace(parameters[11].Value)
+                    ? null
+                    : decimal.Parse(parameters[11].Value),
                 DryParticles = decimal.Parse(parameters[12].Value),
                 RefDryParticles = string.IsNullOrWhiteSpace(parameters[13].Value)
                     ? null

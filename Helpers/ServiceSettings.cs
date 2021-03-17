@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace PlantiT.Service.MilkoScanCSVParser.Helpers
 {
@@ -13,18 +14,21 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
         public string ArchivePath => GetArchivePath();
 
         public string LogPath => GetLogFilePath();
-        
+
 
         private readonly string _filePath;
+        private readonly string _fileArchivePath;
         private readonly string _logPath;
 
         public ServiceSettings(IConfiguration configuration)
         {
 #if DEBUG
             _filePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFilePath"];
+            _fileArchivePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFileArchivePath"];
             _logPath = Directory.GetCurrentDirectory() + configuration["Parameters:LogDirectoryPath"];
 #else
             _filePath = configuration["Parameters:CSVFilePath"];
+            _fileArchivePath = configuration["Parameters:CSVFileArchivePath"];
             _logPath = configuration["Parameters:LogDirectoryPath"];
 #endif
             FileReadingInterval = Int32.Parse(configuration["Parameters:FileReadingInterval"]);
@@ -32,47 +36,17 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
 
         private string GetCSVFilePath()
         {
-            if (File.Exists(_filePath))
-            {
-                return _filePath;
-            }
-            else if (Directory.Exists(_filePath))
-            {
-                var files = Directory.GetFiles(_filePath);
-                foreach (var file in files)
-                {
-                    if (Path.GetExtension(file) == ".csv")
-                    {
-                        return file;
-                    }
-                }
-            }
-
-            return null;
+            return _filePath;
         }
 
         private string GetArchivePath()
         {
-            var dir = Path.GetDirectoryName(FilePath) + @"/" + "Archive" + @"/";
-
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-
-            var name = Path.GetFileNameWithoutExtension(FilePath)
-                       + "_archive_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv";
-            return dir + name;
+            return _fileArchivePath;
         }
-        
+
         private string GetLogFilePath()
         {
-            if (!Directory.Exists(_logPath))
-            {
-                Directory.CreateDirectory(_logPath);
-            }
-            
-            return _logPath + "Log_MilkoScanCSVParser_" + DateTime.Now.ToString("yyyyMM") + ".log";
+            return  _logPath;
         }
     }
 }
