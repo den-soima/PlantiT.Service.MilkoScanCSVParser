@@ -33,7 +33,7 @@ namespace PlantiT.Service.MilkoScanCSVParser
                     services.AddSingleton<ServiceSettings>();
                     services.AddSingleton<FileReader>();
                     services.AddSingleton<Repository>();
-                    services.AddSingleton<FileArchiver>();
+                    services.AddSingleton<FileHandler>();
                     services.AddSingleton<WorkerLogger>();
                 }).UseWindowsService();
     }

@@ -34,5 +34,25 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                     $"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout)", e);
             }
         }
+        
+        protected T WithConnection<T>(Func<IDbConnection,T> getData)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+                return getData(connection);
+            }
+            catch (TimeoutException e)
+            {
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout",
+                    e);
+            }
+            catch (SqlException e)
+            {
+                throw new Exception(
+                    $"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout)", e);
+            }
+        }
     }
 }

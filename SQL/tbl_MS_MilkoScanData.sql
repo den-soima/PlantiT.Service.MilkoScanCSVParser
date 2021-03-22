@@ -7,15 +7,18 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF NOT EXISTS (SELECT * from sys.tables WHERE name='tbl_MS_MilkoScanData')
-
+IF EXISTS (SELECT * from sys.tables WHERE name='tbl_MS_MilkoScanData')
+    DROP TABLE [dbo].[tbl_MS_MilkoScanData]
+        
 CREATE TABLE [dbo].[tbl_MS_MilkoScanData](
-      [nKey]          INT IDENTITY(1,1) NOT NULL
-    , [szFileName]    NVARCHAR(255)     NOT NULL
-    , [szFileBody]    NVARCHAR(MAX)     NOT NULL
-    , [tFileCreated]  DATETIME          NOT NULL
-    , [tFileModified] DATETIME          NOT NULL
-    , [tCreated]      datetime          NOT NULL
+      [nKey]               INT IDENTITY(1,1) NOT NULL
+    , [szFileName]         NVARCHAR(255)     NOT NULL
+    , [szFileBody]         NVARCHAR(MAX)     NOT NULL
+    , [tFileCreated]       DATETIME          NOT NULL
+    , [tFileModified]      DATETIME          NOT NULL
+    , [bHasWrongStructure] BIT               NOT NULL
+    , [bIsDuplicate]       DATETIME          NOT NULL
+    , [tCreated]           DATETIME          NOT NULL
     CONSTRAINT [PK_dbo.tbl_MS_MilkoScanData] PRIMARY KEY CLUSTERED ([nKey] ASC))
 GO
 

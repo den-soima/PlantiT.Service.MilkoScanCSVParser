@@ -9,44 +9,33 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
     {
         public int FileReadingInterval { get; }
 
-        public string FilePath => GetCSVFilePath();
+        public string FilePath { get; }
 
-        public string ArchivePath => GetArchivePath();
+        public string ArchivePath { get; }
 
-        public string LogPath => GetLogFilePath();
+        public string DuplicatePath { get; }
 
+        public string TrashPath { get; }
 
-        private readonly string _filePath;
-        private readonly string _fileArchivePath;
-        private readonly string _logPath;
+        public string LogPath { get; }
+
 
         public ServiceSettings(IConfiguration configuration)
         {
 #if DEBUG
-            _filePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFilePath"];
-            _fileArchivePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFileArchivePath"];
-            _logPath = Directory.GetCurrentDirectory() + configuration["Parameters:LogDirectoryPath"];
+            FilePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFilePath"];
+            ArchivePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFileArchivePath"];
+            DuplicatePath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFileDuplicatePath"];
+            TrashPath = Directory.GetCurrentDirectory() + configuration["Parameters:CSVFileTrashPath"];
+            LogPath = Directory.GetCurrentDirectory() + configuration["Parameters:LogDirectoryPath"];
 #else
-            _filePath = configuration["Parameters:CSVFilePath"];
-            _fileArchivePath = configuration["Parameters:CSVFileArchivePath"];
-            _logPath = configuration["Parameters:LogDirectoryPath"];
+            FilePath = configuration["Parameters:CSVFilePath"];
+            ArchivePath = configuration["Parameters:CSVFileArchivePath"];
+            DuplicatePath = configuration["Parameters:CSVFileDuplicatePath"];
+            TrashPath = configuration["Parameters:CSVFileTrashPath"];
+            LogPath = configuration["Parameters:LogDirectoryPath"];
 #endif
             FileReadingInterval = Int32.Parse(configuration["Parameters:FileReadingInterval"]);
-        }
-
-        private string GetCSVFilePath()
-        {
-            return _filePath;
-        }
-
-        private string GetArchivePath()
-        {
-            return _fileArchivePath;
-        }
-
-        private string GetLogFilePath()
-        {
-            return  _logPath;
         }
     }
 }

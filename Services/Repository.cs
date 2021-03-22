@@ -28,6 +28,8 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 p.Add("szFileBody", milkoScanData.FileBody);
                 p.Add("tFileCreated", milkoScanData.FileCreated);
                 p.Add("tFileModified", milkoScanData.FileModified);
+                p.Add("bHasWrongStructure", milkoScanData.HasWrongStructure);
+                p.Add("bIsDuplicate", milkoScanData.IsDuplicate);
                 p.Add("nKey", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 
                 await conn.QueryAsync<int>("sp_MS_MilkoScanDataInsert",
@@ -80,5 +82,22 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 return p.Get<int>("nKey");
             });
         }
+
+public bool MilkoScanDataDuplicateCheck(DateTime analysisTime)
+{
+    return  WithConnection( conn =>
+    {
+        var p = new DynamicParameters();
+        p.Add("tAnalysisTime", analysisTime);
+        p.Add("bIsDuplicate", dbType: DbType.Boolean, direction: ParameterDirection.Output);
+                
+        conn.Query<bool>("sp_MS_MilkoScanDataDuplicateCheck",
+            p,
+            commandType: CommandType.StoredProcedure
+        );
+                
+        return p.Get<bool>("bIsDuplicate");
+    });
+}
     }
 }

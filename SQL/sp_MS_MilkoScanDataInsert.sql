@@ -10,11 +10,13 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE PROCEDURE [dbo].[sp_MS_MilkoScanDataInsert]
-  @szFileName    NVARCHAR(255)
-, @szFileBody    NVARCHAR(MAX)
-, @tFileCreated  NVARCHAR(255)
-, @tFileModified NVARCHAR(255)
-, @nKey          INT = 0 OUTPUT 
+  @szFileName         NVARCHAR(255)
+, @szFileBody         NVARCHAR(MAX)
+, @tFileCreated       NVARCHAR(255)
+, @tFileModified      NVARCHAR(255)
+, @bHasWrongStructure BIT 
+, @bIsDuplicate       BIT
+, @nKey               INT = 0 OUTPUT 
 AS
 
 /****************************************************************************
@@ -24,7 +26,8 @@ AS
 
    COMMENTS:   
  
-   CHANGES:    15.02.2021 DSO Create
+   CHANGES:    15.03.2021 DSO Create
+               20.03.2021 DSO Add @bHasWrongStructure/@bIsDuplicate
 
 ****************************************************************************/
 
@@ -39,11 +42,15 @@ BEGIN
                                              , szFileBody
                                              , tFileCreated
                                              , tFileModified
+                                             , bHasWrongStructure
+                                             , bIsDuplicate
                                              , tCreated)
             VALUES( @szFileName
                   , @szFileBody
                   , @tFileCreated
                   , @tFileModified
+                  , @bHasWrongStructure
+                  , @bIsDuplicate
                   , @CurrentDate)
 
             COMMIT TRANSACTION

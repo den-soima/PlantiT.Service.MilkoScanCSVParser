@@ -7,12 +7,15 @@ namespace PlantiT.Service.MilkoScanCSVParser.Models
     {
         public string FileName { get; set; }
         public string FileBody { get; set; }
-        
         public string FilePath { get; set; }
         public DateTime FileCreated { get; set; }
         public DateTime FileModified { get; set; }
         public DateTime ReadingTime { get; set; }
         public List<MilkoScanParameter> Parameters { get; set; }
         public MilkoScanSample MilkoScanSample { get; set; }
+
+        public bool IsDuplicate { get; set; }
+
+        public bool HasWrongStructure { get; set; }
     }
 }
