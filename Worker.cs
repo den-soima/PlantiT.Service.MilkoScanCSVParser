@@ -63,105 +63,34 @@ namespace PlantiT.Service.MilkoScanCSVParser
                 // Read CSV file
                 MilkoScanData milkoScanData = _fileReader.ReadFile();
 
-                if (milkoScanData == null)
+                if (milkoScanData != null)
                 {
-                    continue;
-                }
-                
-                _workerLogger.WriteLog($"({milkoScanData.FileName}) file observed"
-                    , $"start reading {DateTime.Now.ToString(new CultureInfo("es-ES"))}"
-                    , 1);
-                
-                _workerLogger.WriteLog($"File path"
-                    , $"{_serviceSettings.FilePath}"
-                    , 3);
-                _workerLogger.WriteLog($"File created"
-                    , $"{milkoScanData.FileCreated}"
-                    , 3);
+                    _workerLogger.WriteLog($"({milkoScanData.FileName}) file observed"
+                        , $"start reading {DateTime.Now.ToString(new CultureInfo("es-ES"))}"
+                        , 1);
 
-                _workerLogger.WriteLog($"File modified"
-                    , $"{milkoScanData.FileModified}"
-                    , 3);
+                    _workerLogger.WriteLog($"File path"
+                        , $"{_serviceSettings.FilePath}"
+                        , 3);
+                    _workerLogger.WriteLog($"File created"
+                        , $"{milkoScanData.FileCreated}"
+                        , 3);
 
-                _workerLogger.WriteLog($"File body"
-                    , $"({milkoScanData.FileBody})"
-                    , 3);
-                
-               // Write Milkoscan data to DB
-                try
-                {
-                    milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
+                    _workerLogger.WriteLog($"File modified"
+                        , $"{milkoScanData.FileModified}"
+                        , 3);
 
-                    _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanData"
-                        , $"id = {milkoScanDataId}"
-                        , 2);
-                }
-                catch (Exception e)
-                {
-                    _workerLogger.WriteLog($"ERROR - Insert to DB"
-                        , $"{e.Message}"
-                        , 0);
+                    _workerLogger.WriteLog($"File body"
+                        , $"({milkoScanData.FileBody})"
+                        , 3);
 
-                    _logger.LogError("Error Insert data to DB");
-                }
-            
-                // Wrong structure
-                if (milkoScanData.HasWrongStructure)
-                {
-                    _workerLogger.WriteLog($"File has wrong structure"
-                        , $"will be moved to trash folder"
-                        , 2);
-                    
-                    var result = _fileHandler.Trash(milkoScanData.FilePath);
-
-                    if (result != null)
-                    {
-                        _workerLogger.WriteLog($"File moved to trash folder"
-                            , $"path = {result}"
-                            , 2);
-                    }
-                    else
-                    {
-                        _workerLogger.WriteLog($"ERROR File moving failed"
-                            , $"path: {_serviceSettings.TrashPath}"
-                            , 0);
-                    }
-                }
-                
-                
-                // Duplicate
-                if (milkoScanData.IsDuplicate)
-                {
-                    _workerLogger.WriteLog($"File is a duplicate"
-                        , $"will be moved to duplicate folder"
-                        , 2);
-                    
-                    var result = _fileHandler.Duplicate(milkoScanData.FilePath);
-
-                    if (result != null)
-                    {
-                        _workerLogger.WriteLog($"File moved to duplicate folder"
-                            , $"path = {result}"
-                            , 2);
-                    }
-                    else
-                    {
-                        _workerLogger.WriteLog($"ERROR File moving failed"
-                            , $"path: {_serviceSettings.DuplicatePath}"
-                            , 0);
-                    }
-                }
-
-    
-                if (milkoScanDataId > 0 && !milkoScanData.HasWrongStructure && !milkoScanData.IsDuplicate)
-                {
-                    // Write Milkoscan sample to DB
+                    // Write Milkoscan data to DB
                     try
                     {
-                        var milkoScanDataSampleId = await _repository.InsertMilkoScanDataSample(milkoScanDataId, milkoScanData.MilkoScanSample);
+                        milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
 
-                        _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
-                            , $"id = {milkoScanDataSampleId}"
+                        _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanData"
+                            , $"id = {milkoScanDataId}"
                             , 2);
                     }
                     catch (Exception e)
@@ -173,20 +102,91 @@ namespace PlantiT.Service.MilkoScanCSVParser
                         _logger.LogError("Error Insert data to DB");
                     }
 
-                    // Archive file
-                    var result = _fileHandler.Archive(milkoScanData.FilePath);
-
-                    if (result != null)
+                    // Wrong structure
+                    if (milkoScanData.HasWrongStructure)
                     {
-                        _workerLogger.WriteLog($"File archived"
-                            , $"path = {result}"
+                        _workerLogger.WriteLog($"File has wrong structure"
+                            , $"will be moved to trash folder"
                             , 2);
+
+                        var result = _fileHandler.Trash(milkoScanData.FilePath);
+
+                        if (result != null)
+                        {
+                            _workerLogger.WriteLog($"File moved to trash folder"
+                                , $"path = {result}"
+                                , 2);
+                        }
+                        else
+                        {
+                            _workerLogger.WriteLog($"ERROR File moving failed"
+                                , $"path: {_serviceSettings.TrashPath}"
+                                , 0);
+                        }
                     }
-                    else
+
+
+                    // Duplicate
+                    if (milkoScanData.IsDuplicate)
                     {
-                        _workerLogger.WriteLog($"ERROR File archiving failed"
-                            , $"archive path: {_serviceSettings.ArchivePath}"
-                            , 0);
+                        _workerLogger.WriteLog($"File is a duplicate"
+                            , $"will be moved to duplicate folder"
+                            , 2);
+
+                        var result = _fileHandler.Duplicate(milkoScanData.FilePath);
+
+                        if (result != null)
+                        {
+                            _workerLogger.WriteLog($"File moved to duplicate folder"
+                                , $"path = {result}"
+                                , 2);
+                        }
+                        else
+                        {
+                            _workerLogger.WriteLog($"ERROR File moving failed"
+                                , $"path: {_serviceSettings.DuplicatePath}"
+                                , 0);
+                        }
+                    }
+
+
+                    if (milkoScanDataId > 0 && !milkoScanData.HasWrongStructure && !milkoScanData.IsDuplicate)
+                    {
+                        // Write Milkoscan sample to DB
+                        try
+                        {
+                            var milkoScanDataSampleId =
+                                await _repository.InsertMilkoScanDataSample(milkoScanDataId,
+                                    milkoScanData.MilkoScanSample);
+
+                            _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
+                                , $"id = {milkoScanDataSampleId}"
+                                , 2);
+                        }
+                        catch (Exception e)
+                        {
+                            _workerLogger.WriteLog($"ERROR - Insert to DB"
+                                , $"{e.Message}"
+                                , 0);
+
+                            _logger.LogError("Error Insert data to DB");
+                        }
+
+                        // Archive file
+                        var result = _fileHandler.Archive(milkoScanData.FilePath);
+
+                        if (result != null)
+                        {
+                            _workerLogger.WriteLog($"File archived"
+                                , $"path = {result}"
+                                , 2);
+                        }
+                        else
+                        {
+                            _workerLogger.WriteLog($"ERROR File archiving failed"
+                                , $"archive path: {_serviceSettings.ArchivePath}"
+                                , 0);
+                        }
                     }
                 }
 

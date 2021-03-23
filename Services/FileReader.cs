@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using PlantiT.Service.MilkoScanCSVParser.Helpers;
 using PlantiT.Service.MilkoScanCSVParser.Models;
 
@@ -26,6 +23,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
         public MilkoScanData ReadFile()
         {
             int linePointer = 0;
+            var fileBody = "file body";
 
             string filePath = _serviceSettings.FilePath;
 
@@ -62,7 +60,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 var line = _reader.ReadLine();
                 var values = line?.Split(",");
 
-                milkoScanData.FileBody = linePointer == 2 ? line : String.Empty;
+                fileBody= linePointer == 2 ? line : "Error reading";
 
                 for (int i = 0; i < values?.Length; i++)
                 {
@@ -87,6 +85,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             milkoScanData.FileModified = File.GetLastWriteTime(filePath);
             milkoScanData.FilePath = filePath;
             milkoScanData.ReadingTime = DateTime.Now;
+            milkoScanData.FileBody = fileBody;
             milkoScanData.Parameters = parameters;
 
             // sample data

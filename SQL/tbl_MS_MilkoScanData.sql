@@ -7,6 +7,9 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
+IF EXISTS (SELECT * from sys.tables WHERE name='tbl_MS_MilkoScanDataSample')
+    DROP TABLE [dbo].[tbl_MS_MilkoScanDataSample]
+
 IF EXISTS (SELECT * from sys.tables WHERE name='tbl_MS_MilkoScanData')
     DROP TABLE [dbo].[tbl_MS_MilkoScanData]
         
@@ -17,7 +20,7 @@ CREATE TABLE [dbo].[tbl_MS_MilkoScanData](
     , [tFileCreated]       DATETIME          NOT NULL
     , [tFileModified]      DATETIME          NOT NULL
     , [bHasWrongStructure] BIT               NOT NULL
-    , [bIsDuplicate]       DATETIME          NOT NULL
+    , [bIsDuplicate]       BIT               NOT NULL
     , [tCreated]           DATETIME          NOT NULL
     CONSTRAINT [PK_dbo.tbl_MS_MilkoScanData] PRIMARY KEY CLUSTERED ([nKey] ASC))
 GO

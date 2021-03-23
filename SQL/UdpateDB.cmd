@@ -18,6 +18,7 @@ SET RUN=sqlcmd -v DebugCmd=%Debug% -S %Server%\%Instanse% -d %Database% -i
 %RUN% tbl_MS_MilkoScanDataSample.sql
 %RUN% sp_MS_MilkoScanDataInsert.sql
 %RUN% sp_MS_MilkoScanDataSampleInsert.sql
+%RUN% sp_MS_MilkoScanDataDuplicateCheck.sql
 @rem
 echo.
 @rem
