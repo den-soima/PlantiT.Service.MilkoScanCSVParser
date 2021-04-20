@@ -16,6 +16,5 @@
       <Folder Include="Files\CSV Sample\Archive" />
       <Folder Include="Files\CSV Sample\Duplicate" />
       <Folder Include="Files\CSV Sample\Trash" />
-      <Folder Include="Files\Log" />
     </ItemGroup>
 </Project>

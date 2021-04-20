@@ -15,24 +15,18 @@ CREATE TABLE [dbo].[tbl_MS_MilkoScanDataSample](
     , [nMilkoScanDataLink]       INT               NOT NULL
     , [tAnalysisTime]            DATETIME          NOT NULL 
     , [szProductName]            NVARCHAR(128)     NOT NULL
-    , [szProductCode]            NVARCHAR(32)      NOT NULL
-    , [szSampleType]             NVARCHAR(32)      NOT NULL 
-    , [szSampleNumber]           NVARCHAR(32)      NOT NULL 
-    , [szSampleComment]          NVARCHAR(256)     NULL 
-    , [szInstrumentName]         NVARCHAR(64)      NOT NULL 
-    , [szInstrumentSerialNumber] NVARCHAR(32)      NOT NULL 
-    , [rFat]                     REAL              NOT NULL 
-    , [rRefFat]                  REAL              NULL      
-    , [rWhey]                    REAL              NOT NULL 
-    , [rRefWhey]                 REAL              NULL
+    , [szSampleId]               NVARCHAR(10)      NOT NULL
+    , [szDate]                   NVARCHAR(8)       NOT NULL 
+    , [szTime]                   NVARCHAR(8)       NOT NULL 
+    , [szSampleStatus]           NVARCHAR(128)     NULL 
+    , [nSampleNumber]            INT               NOT NULL 
+    , [rWhey]                    REAL              NOT NULL
+    , [rFat]                     REAL              NOT NULL
+    , [rLactose]                 REAL              NOT NULL
     , [rDryParticles]            REAL              NOT NULL 
-    , [rRefDryParticles]         REAL              NULL 
-    , [rDryFatFreeParticles]     REAL              NOT NULL 
-    , [rRefDryFatFreeParticles]  REAL              NULL 
+    , [rDryParticlesFatFree]     REAL              NOT NULL 
     , [rFreezingPoint]           REAL              NOT NULL 
-    , [rRefFreezingPoint]        REAL              NULL
-    , [rLactose]                 REAL              NOT NULL 
-    , [rRefLactose]              REAL              NULL 
+    , [szInstrumentStatus]       NVARCHAR(32)      NOT NULL
     CONSTRAINT [PK_dbo.tbl_MS_MilkoScanDataSample] PRIMARY KEY CLUSTERED ([nKey] ASC))
     
 ALTER TABLE [dbo].[tbl_MS_MilkoScanDataSample]  WITH CHECK 
@@ -40,6 +34,8 @@ ALTER TABLE [dbo].[tbl_MS_MilkoScanDataSample]  WITH CHECK
         FOREIGN KEY([nMilkoScanDataLink])
     REFERENCES [dbo].[tbl_MS_MilkoScanData] ([nKey])
     ON DELETE CASCADE
+
+CREATE INDEX IX_nSampleNumber ON tbl_MS_MilkoScanDataSample (nSampleNumber);
 
 GO
 

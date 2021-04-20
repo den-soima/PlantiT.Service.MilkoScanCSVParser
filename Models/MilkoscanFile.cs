@@ -3,19 +3,14 @@ using System.Collections.Generic;
 
 namespace PlantiT.Service.MilkoScanCSVParser.Models
 {
-    public class MilkoScanData
-    {
+    public class MilkoscanFile
+    { 
         public string FileName { get; set; }
-        public string FileBody { get; set; }
         public string FilePath { get; set; }
         public DateTime FileCreated { get; set; }
         public DateTime FileModified { get; set; }
         public DateTime ReadingTime { get; set; }
-        public List<MilkoScanParameter> Parameters { get; set; }
-        public MilkoScanSample MilkoScanSample { get; set; }
-
-        public bool IsDuplicate { get; set; }
-
-        public bool HasWrongStructure { get; set; }
+        public bool? HasWrongStructure { get; set; }
+        public MilkoscanFileData MilkoScanFileData { get; set; }
     }
 }

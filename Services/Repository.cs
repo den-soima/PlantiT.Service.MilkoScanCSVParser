@@ -3,101 +3,90 @@ using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PlantiT.Service.MilkoScanCSVParser.Models;
 
 namespace PlantiT.Service.MilkoScanCSVParser.Services
 {
     public class Repository : RepositoryBase
     {
-        public Repository(IConfiguration configuration):base(configuration)
+        public Repository(IConfiguration configuration) : base(configuration)
         {
-            
         }
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="fileName"></param>
-       /// <param name="fileBody"></param>
-       /// <returns></returns>
-       public async Task<int> InsertMilkoScanData(MilkoScanData milkoScanData)
+
+        public async Task<int> InsertMilkoScanFileData(MilkoscanFile milkoscanFile)
         {
-            return await WithConnection( async conn =>
+            return await WithConnection(async conn =>
             {
                 var p = new DynamicParameters();
-                p.Add("szFileName", milkoScanData.FileName);
-                p.Add("szFileBody", milkoScanData.FileBody);
-                p.Add("tFileCreated", milkoScanData.FileCreated);
-                p.Add("tFileModified", milkoScanData.FileModified);
-                p.Add("bHasWrongStructure", milkoScanData.HasWrongStructure);
-                p.Add("bIsDuplicate", milkoScanData.IsDuplicate);
+                p.Add("szFileName", milkoscanFile.FileName);
+                p.Add("tFileCreated", milkoscanFile.FileCreated);
+                p.Add("tFileModified", milkoscanFile.FileModified);
+                p.Add("bHasWrongStructure", milkoscanFile.HasWrongStructure);
                 p.Add("nKey", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                
+
                 await conn.QueryAsync<int>("sp_MS_MilkoScanDataInsert",
                     p,
-                    commandType: CommandType.StoredProcedure
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: conn.ConnectionTimeout
                 );
-                
+
                 return p.Get<int>("nKey");
             });
         }
-/// <summary>
-/// 
-/// </summary>
-/// <param name="sample"></param>
-/// <returns></returns>
-        public async Task<int> InsertMilkoScanDataSample(int milkoScanDataId, MilkoScanSample sample)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <returns></returns>
+        public async Task<int> InsertMilkoScanDataSample(int milkoScanDataId, MilkoscanSample sample)
         {
             var p = new DynamicParameters();
             p.Add("nMilkoScanDataLink", milkoScanDataId);
             p.Add("tAnalysisTime", sample.AnalysisTime);
-            p.Add("szProductName", sample.ProductName);
-            p.Add("szProductCode", sample.ProductCode);
-            p.Add("szSampleType", sample.SampleType);
-            p.Add("szSampleNumber", sample.SampleNumber);
-            p.Add("szSampleComment", sample.SampleComment);
-            p.Add("szInstrumentName", sample.InstrumentName);
-            p.Add("szInstrumentSerialNumber", sample.InstrumentSerialNumber);
-            p.Add("rFat", sample.Fat);
-            p.Add("rRefFat", sample.RefFat);
-            p.Add("rWhey", sample.Whey);
-            p.Add("rRefWhey", sample.RefWhey);
-            p.Add("rDryParticles", sample.DryParticles);
-            p.Add("rRefDryParticles", sample.RefDryParticles);
-            p.Add("rDryFatFreeParticles", sample.DryFatFreeParticles);
-            p.Add("rRefDryFatFreeParticles", sample.RefDryFatFreeParticles);
-            p.Add("rFreezingPoint", sample.FreezingPoint);
-            p.Add("rRefFreezingPoint", sample.RefFreezingPoint);
-            p.Add("rLactose", sample.Lactose);
-            p.Add("rRefLactose", sample.RefLactose);
-            
-            
+            p.Add("szProductName", sample.Parameters.ProductName);
+            p.Add("szSampleId", sample.Parameters.SampleId);
+            p.Add("szDate", sample.Parameters.Date);
+            p.Add("szTime", sample.Parameters.Time);
+            p.Add("szSampleStatus", sample.Parameters.SampleStatus);
+            p.Add("nSampleNumber", sample.Parameters.SampleNumber);
+            p.Add("rWhey", sample.Parameters.Whey);
+            p.Add("rFat", sample.Parameters.Fat);
+            p.Add("rLactose", sample.Parameters.Lactose);
+            p.Add("rDryParticles", sample.Parameters.DryParticles);
+            p.Add("rDryParticlesFatFree", sample.Parameters.DryParticlesFatFree);
+            p.Add("rFreezingPoint", sample.Parameters.FreezingPoint);
+            p.Add("szInstrumentStatus", sample.Parameters.InstrumentStatus);
+
             p.Add("nKey", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            
+
             return await WithConnection(async conn =>
             {
                 await conn.QueryAsync<int>("sp_MS_MilkoScanDataSampleInsert",
-                   p,
-                   commandType: CommandType.StoredProcedure
+                    p,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: conn.ConnectionTimeout
                 );
                 return p.Get<int>("nKey");
             });
         }
 
-public bool MilkoScanDataDuplicateCheck(DateTime analysisTime)
-{
-    return  WithConnection( conn =>
-    {
-        var p = new DynamicParameters();
-        p.Add("tAnalysisTime", analysisTime);
-        p.Add("bIsDuplicate", dbType: DbType.Boolean, direction: ParameterDirection.Output);
-                
-        conn.Query<bool>("sp_MS_MilkoScanDataDuplicateCheck",
-            p,
-            commandType: CommandType.StoredProcedure
-        );
-                
-        return p.Get<bool>("bIsDuplicate");
-    });
-}
+        public async Task<DateTime?> GetMilkoscanLastSampleDate()
+        {
+            var p = new DynamicParameters();
+            p.Add("tAnalysisTime", dbType: DbType.DateTime, direction: ParameterDirection.Output);
+
+            return await WithConnection(async conn=>
+            {
+                await conn.QueryAsync<DateTime?>("sp_MS_MilkoScanLastSampleDateGet",
+                    p,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: conn.ConnectionTimeout
+                );
+
+                return p.Get<DateTime?>("tAnalysisTime");
+            });
+        }
     }
 }

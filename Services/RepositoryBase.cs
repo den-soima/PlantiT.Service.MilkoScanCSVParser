@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace PlantiT.Service.MilkoScanCSVParser.Services
 {
@@ -25,13 +26,13 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             }
             catch (TimeoutException e)
             {
-                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout",
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout + Message:{e.Message}",
                     e);
             }
             catch (SqlException e)
             {
-                throw new Exception(
-                    $"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout)", e);
+                 throw new Exception(
+                     $"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout) + Message:{e.Message}", e);
             }
         }
         

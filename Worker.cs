@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PlantiT.Service.MilkoScanCSVParser.Helpers;
@@ -44,7 +45,6 @@ namespace PlantiT.Service.MilkoScanCSVParser
             string trashPath = _serviceSettings.TrashPath;
             string logPath = _serviceSettings.LogPath;
 
-            int milkoScanDataId = 0;
 #if DEBUG
             _logger.LogInformation("Service settings:"
                                    + $"\r\n filePath - {filePath}"
@@ -60,12 +60,18 @@ namespace PlantiT.Service.MilkoScanCSVParser
 
             while (!stoppingToken.IsCancellationRequested)
             {
+                int milkoScanDataId = 0;
+                
+                //TODO: Exclude scan files in folder from FileReader
+                
                 // Read CSV file
-                MilkoScanData milkoScanData = _fileReader.ReadFile();
+                MilkoscanFile milkoscanFile = _fileReader.ReadFile();
 
-                if (milkoScanData != null)
+                if (milkoscanFile != null)
                 {
-                    _workerLogger.WriteLog($"({milkoScanData.FileName}) file observed"
+                    #region Log file header
+
+                    _workerLogger.WriteLog($"({milkoscanFile.FileName}) file observed"
                         , $"start reading {DateTime.Now.ToString(new CultureInfo("es-ES"))}"
                         , 1);
 
@@ -73,21 +79,18 @@ namespace PlantiT.Service.MilkoScanCSVParser
                         , $"{_serviceSettings.FilePath}"
                         , 3);
                     _workerLogger.WriteLog($"File created"
-                        , $"{milkoScanData.FileCreated}"
+                        , $"{milkoscanFile.FileCreated}"
                         , 3);
 
                     _workerLogger.WriteLog($"File modified"
-                        , $"{milkoScanData.FileModified}"
+                        , $"{milkoscanFile.FileModified}"
                         , 3);
 
-                    _workerLogger.WriteLog($"File body"
-                        , $"({milkoScanData.FileBody})"
-                        , 3);
+                    #endregion
 
-                    // Write Milkoscan data to DB
                     try
                     {
-                        milkoScanDataId = await _repository.InsertMilkoScanData(milkoScanData);
+                        milkoScanDataId = await _repository.InsertMilkoScanFileData(milkoscanFile);
 
                         _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanData"
                             , $"id = {milkoScanDataId}"
@@ -100,16 +103,17 @@ namespace PlantiT.Service.MilkoScanCSVParser
                             , 0);
 
                         _logger.LogError("Error Insert data to DB");
+                        _logger.LogError(e.Message);
                     }
 
                     // Wrong structure
-                    if (milkoScanData.HasWrongStructure)
+                    if (milkoscanFile.HasWrongStructure ?? true)
                     {
                         _workerLogger.WriteLog($"File has wrong structure"
                             , $"will be moved to trash folder"
                             , 2);
 
-                        var result = _fileHandler.Trash(milkoScanData.FilePath);
+                        var result = _fileHandler.Trash(milkoscanFile.FilePath);
 
                         if (result != null)
                         {
@@ -124,56 +128,55 @@ namespace PlantiT.Service.MilkoScanCSVParser
                                 , 0);
                         }
                     }
-
-
-                    // Duplicate
-                    if (milkoScanData.IsDuplicate)
+                    else
                     {
-                        _workerLogger.WriteLog($"File is a duplicate"
-                            , $"will be moved to duplicate folder"
-                            , 2);
+                        MilkoscanDataHandler milkoscanDataHandler = new MilkoscanDataHandler();
 
-                        var result = _fileHandler.Duplicate(milkoScanData.FilePath);
+                        List<MilkoscanSample> samples =
+                            milkoscanDataHandler.HandleData(milkoscanFile.MilkoScanFileData);
 
-                        if (result != null)
+                        if (samples.Count > 0)
                         {
-                            _workerLogger.WriteLog($"File moved to duplicate folder"
-                                , $"path = {result}"
+                            // get last sample date time
+
+                            var lastAnalysisDate = await _repository.GetMilkoscanLastSampleDate();
+
+                            var filteredSamples = lastAnalysisDate == null? samples
+                                : samples.Where(sample => sample.AnalysisTime > lastAnalysisDate);
+
+                            _workerLogger.WriteLog($"New samples"
+                                , $"Count = {filteredSamples.Count()}"
                                 , 2);
-                        }
-                        else
-                        {
-                            _workerLogger.WriteLog($"ERROR File moving failed"
-                                , $"path: {_serviceSettings.DuplicatePath}"
-                                , 0);
-                        }
-                    }
+                            
+                            foreach (var sample in filteredSamples)
+                            {
+                                // Write Milkoscan sample to DB
+                                try
+                                {
+                                    var milkoScanDataSampleId =
+                                        await _repository.InsertMilkoScanDataSample(milkoScanDataId,
+                                            sample);
 
+                                    _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
+                                        , $"id = {milkoScanDataSampleId}"
+                                        , 2);
+                                    _workerLogger.WriteLog($"Sample"
+                                        , $"data = {sample.SampleRow}"
+                                        , 3);
+                                }
+                                catch (Exception e)
+                                {
+                                    _workerLogger.WriteLog($"ERROR - Insert to DB"
+                                        , $"{e.Message}"
+                                        , 0);
 
-                    if (milkoScanDataId > 0 && !milkoScanData.HasWrongStructure && !milkoScanData.IsDuplicate)
-                    {
-                        // Write Milkoscan sample to DB
-                        try
-                        {
-                            var milkoScanDataSampleId =
-                                await _repository.InsertMilkoScanDataSample(milkoScanDataId,
-                                    milkoScanData.MilkoScanSample);
-
-                            _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
-                                , $"id = {milkoScanDataSampleId}"
-                                , 2);
-                        }
-                        catch (Exception e)
-                        {
-                            _workerLogger.WriteLog($"ERROR - Insert to DB"
-                                , $"{e.Message}"
-                                , 0);
-
-                            _logger.LogError("Error Insert data to DB");
+                                    _logger.LogError("Error Insert data to DB");
+                                }
+                            }
                         }
 
                         // Archive file
-                        var result = _fileHandler.Archive(milkoScanData.FilePath);
+                        var result = _fileHandler.Archive(milkoscanFile.FilePath);
 
                         if (result != null)
                         {
@@ -188,9 +191,9 @@ namespace PlantiT.Service.MilkoScanCSVParser
                                 , 0);
                         }
                     }
-                }
 
-                await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);
+                    await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using PlantiT.Service.MilkoScanCSVParser.Helpers;
 using PlantiT.Service.MilkoScanCSVParser.Models;
@@ -12,7 +13,6 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
         private readonly ServiceSettings _serviceSettings;
         private readonly Repository _repository;
         private StreamReader _reader;
-        private const int _maxLinesToRead = 2;
 
         public FileReader(ServiceSettings serviceSettings, Repository repository)
         {
@@ -20,11 +20,8 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             _repository = repository;
         }
 
-        public MilkoScanData ReadFile()
+        public MilkoscanFile ReadFile()
         {
-            int linePointer = 0;
-            var fileBody = "file body";
-
             string filePath = _serviceSettings.FilePath;
 
             if (!File.Exists(filePath))
@@ -34,7 +31,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                     var files = Directory.GetFiles(filePath);
                     foreach (var file in files)
                     {
-                        if (Path.GetExtension(file) == ".csv")
+                        if (Path.GetExtension(file).ToLower() == ".csv")
                         {
                             filePath = file;
                             break;
@@ -50,127 +47,37 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
 
             _reader = new StreamReader(filePath);
 
-            MilkoScanData milkoScanData = new MilkoScanData();
-            List<MilkoScanParameter> parameters = new List<MilkoScanParameter>();
+            MilkoscanFile milkoscanFile = new MilkoscanFile();
+            MilkoscanFileData milkoscanFileData = new MilkoscanFileData();
 
-            while (!_reader.EndOfStream && linePointer < _maxLinesToRead)
+            int linePointer = 0;
+            while (!_reader.EndOfStream)
             {
                 linePointer++;
-
                 var line = _reader.ReadLine();
-                var values = line?.Split(",");
-
-                fileBody= linePointer == 2 ? line : "Error reading";
-
-                for (int i = 0; i < values?.Length; i++)
-                {
+                var values = line?.Split(";");
+                
                     if (linePointer == 1)
                     {
-                        parameters.Add(new MilkoScanParameter
-                        {
-                            Id = i,
-                            Key = values[i],
-                            Value = ""
-                        });
+                        milkoscanFileData.Key = values;
                     }
-                    else if (linePointer == 2)
-                    {
-                        parameters[i].Value = values[i];
+                    else {
+                        milkoscanFileData.Samples.Add(values);
                     }
-                }
             }
 
-            milkoScanData.FileName = Path.GetFileName(filePath);
-            milkoScanData.FileCreated = File.GetCreationTime(filePath);
-            milkoScanData.FileModified = File.GetLastWriteTime(filePath);
-            milkoScanData.FilePath = filePath;
-            milkoScanData.ReadingTime = DateTime.Now;
-            milkoScanData.FileBody = fileBody;
-            milkoScanData.Parameters = parameters;
-
-            // sample data
-            milkoScanData.MilkoScanSample = SetValues(parameters);
-            
-            // wrong structure
-            milkoScanData.HasWrongStructure = milkoScanData.MilkoScanSample == null;
-
-            // duplicate 
-            if (milkoScanData.MilkoScanSample != null)
-                milkoScanData.IsDuplicate = _repository.MilkoScanDataDuplicateCheck(milkoScanData.MilkoScanSample.AnalysisTime);
+            milkoscanFile.FileName = Path.GetFileName(filePath);
+            milkoscanFile.FileCreated = File.GetCreationTime(filePath);
+            milkoscanFile.FileModified = File.GetLastWriteTime(filePath);
+            milkoscanFile.FilePath = filePath;
+            milkoscanFile.ReadingTime = DateTime.Now;
+            milkoscanFile.HasWrongStructure = milkoscanFileData?.Key?.Length != 30;
+            milkoscanFile.MilkoScanFileData = milkoscanFileData;
 
             _reader.Close();
 
-            return milkoScanData;
+            return milkoscanFile;
         }
-
-        private MilkoScanSample SetValues(List<MilkoScanParameter> parameters)
-        {
-            MilkoScanSample milkoScanSample = null;
-
-            try
-            {
-                var analysisTime = DateTime.Parse(parameters[0].Value);
-                var productName = parameters[1].Value;
-                var productCode = parameters[2].Value;
-                var sampleType = parameters[3].Value;
-                var sampleNumber = parameters[4].Value;
-                var sampleComment = parameters[5].Value;
-                var instrumentName = parameters[6].Value;
-                var instrumentSerialNumber = parameters[7].Value;
-                var fat = decimal.Parse(parameters[8].Value);
-                decimal? refFat = string.IsNullOrWhiteSpace(parameters[9].Value) ? null : decimal.Parse(parameters[9].Value);
-                var whey = decimal.Parse(parameters[10].Value);
-                decimal? refWhey = string.IsNullOrWhiteSpace(parameters[11].Value)
-                    ? null
-                    : decimal.Parse(parameters[11].Value);
-                var dryParticles = decimal.Parse(parameters[12].Value);
-                decimal? refDryParticles = string.IsNullOrWhiteSpace(parameters[13].Value)
-                    ? null
-                    : decimal.Parse(parameters[13].Value);
-                var dryFatFreeParticles = decimal.Parse(parameters[14].Value);
-                decimal? refDryFatFreeParticles = string.IsNullOrWhiteSpace(parameters[15].Value)
-                    ? null
-                    : decimal.Parse(parameters[15].Value);
-                var freezingPoint = decimal.Parse(parameters[16].Value);
-                decimal? refFreezingPoint = string.IsNullOrWhiteSpace(parameters[17].Value)
-                    ? null
-                    : decimal.Parse(parameters[17].Value);
-                var lactose = decimal.Parse(parameters[18].Value);
-                decimal? RefLactose = string.IsNullOrWhiteSpace(parameters[19].Value)
-                    ? null
-                    : decimal.Parse(parameters[19].Value);
-                
-                milkoScanSample = new MilkoScanSample
-                {
-                    AnalysisTime = analysisTime,
-                    ProductName = productName,
-                    ProductCode = productCode,
-                    SampleType = sampleType,
-                    SampleNumber = sampleNumber,
-                    SampleComment = sampleComment,
-                    InstrumentName = instrumentName,
-                    InstrumentSerialNumber = instrumentSerialNumber,
-                    Fat = fat,
-                    RefFat = refFat,
-                    Whey = whey,
-                    RefWhey = refWhey,
-                    DryParticles = dryParticles,
-                    RefDryParticles = refDryParticles,
-                    DryFatFreeParticles = dryFatFreeParticles,
-                    RefDryFatFreeParticles = refDryFatFreeParticles,
-                    FreezingPoint = freezingPoint,
-                    RefFreezingPoint = refFreezingPoint,
-                    Lactose = lactose,
-                    RefLactose = RefLactose
-                };
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                milkoScanSample = null;
-            }
-
-            return milkoScanSample;
-        }
+        
     }
 }

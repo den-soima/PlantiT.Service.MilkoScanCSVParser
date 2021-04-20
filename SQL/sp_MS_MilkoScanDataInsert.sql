@@ -11,11 +11,9 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_MS_MilkoScanDataInsert]
   @szFileName         NVARCHAR(255)
-, @szFileBody         NVARCHAR(MAX)
 , @tFileCreated       NVARCHAR(255)
 , @tFileModified      NVARCHAR(255)
 , @bHasWrongStructure BIT 
-, @bIsDuplicate       BIT
 , @nKey               INT = 0 OUTPUT 
 AS
 
@@ -39,18 +37,14 @@ BEGIN
 
         BEGIN TRY
             INSERT INTO tbl_MS_MilkoScanData ( szFileName
-                                             , szFileBody
                                              , tFileCreated
                                              , tFileModified
                                              , bHasWrongStructure
-                                             , bIsDuplicate
                                              , tCreated)
             VALUES( @szFileName
-                  , @szFileBody
                   , @tFileCreated
                   , @tFileModified
                   , @bHasWrongStructure
-                  , @bIsDuplicate
                   , @CurrentDate)
 
             COMMIT TRANSACTION
