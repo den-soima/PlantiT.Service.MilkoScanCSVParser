@@ -191,9 +191,8 @@ namespace PlantiT.Service.MilkoScanCSVParser
                                 , 0);
                         }
                     }
-
-                    await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);
                 }
+                await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);
             }
         }
     }

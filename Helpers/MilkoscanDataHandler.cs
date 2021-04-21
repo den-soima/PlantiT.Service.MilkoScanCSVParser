@@ -18,7 +18,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
             {
                 if (sampleRow.Length == milkoscanFileData.Key.Length && !String.IsNullOrWhiteSpace(sampleRow[1]))
                 {
-                    MilkoscanSampleParameters sample = ParseSample(sampleRow);
+                    MilkoscanSampleParameters sample = ParseData(sampleRow);
 
                     if (sample != null)
                     {
@@ -37,7 +37,7 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
             return samples;
         }
         
-        private MilkoscanSampleParameters ParseSample(string[] parameters)
+        private MilkoscanSampleParameters ParseData(string[] parameters)
         {
             MilkoscanSampleParameters milkoscanSampleParameters = null;
 
@@ -49,13 +49,13 @@ namespace PlantiT.Service.MilkoScanCSVParser.Helpers
                 var time = parameters[3];
                 var sampleStatus = parameters[4];
                 var sampleNumber = Int32.Parse(parameters[5]);
-                var whey = decimal.Parse(parameters[11]);
-                var fat = decimal.Parse(parameters[12]);
-                var lactose = decimal.Parse(parameters[13]);
+                var whey = decimal.Parse(parameters[11], CultureInfo.InvariantCulture);
+                var fat = decimal.Parse(parameters[12], CultureInfo.InvariantCulture);
+                var lactose = decimal.Parse(parameters[13], CultureInfo.InvariantCulture);
 
-                var dryParticles = decimal.Parse(parameters[14]);
-                var dryFatFreeParticles = decimal.Parse(parameters[16]);
-                var freezingPoint = decimal.Parse(parameters[17]);
+                var dryParticles = decimal.Parse(parameters[14], CultureInfo.InvariantCulture);
+                var dryFatFreeParticles = decimal.Parse(parameters[16], CultureInfo.InvariantCulture);
+                var freezingPoint = decimal.Parse(parameters[17], CultureInfo.InvariantCulture);
                 var instrumentStatus = parameters[29];
 
                 milkoscanSampleParameters = new MilkoscanSampleParameters()
