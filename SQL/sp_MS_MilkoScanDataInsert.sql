@@ -11,22 +11,21 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_MS_MilkoScanDataInsert]
   @szFileName         NVARCHAR(255)
+, @szFileBody         NVARCHAR(MAX)
 , @tFileCreated       NVARCHAR(255)
 , @tFileModified      NVARCHAR(255)
-, @bHasWrongStructure BIT 
-, @nKey               INT = 0 OUTPUT 
+, @bHasWrongStructure BIT
+, @bIsDuplicate       BIT
+, @nKey               INT = 0 OUTPUT
 AS
 
 /****************************************************************************
    FUNCTION:   sp_MS_MilkoScanDataInsert
-
    PURPOSE:    Insert data to table tbl_MS_MilkoScanData
-
    COMMENTS:   
  
    CHANGES:    15.03.2021 DSO Create
                20.03.2021 DSO Add @bHasWrongStructure/@bIsDuplicate
-
 ****************************************************************************/
 
 BEGIN
@@ -37,14 +36,18 @@ BEGIN
 
         BEGIN TRY
             INSERT INTO tbl_MS_MilkoScanData ( szFileName
+                                             , szFileBody
                                              , tFileCreated
                                              , tFileModified
                                              , bHasWrongStructure
+                                             , bIsDuplicate
                                              , tCreated)
             VALUES( @szFileName
+                  , @szFileBody
                   , @tFileCreated
                   , @tFileModified
                   , @bHasWrongStructure
+                  , @bIsDuplicate
                   , @CurrentDate)
 
             COMMIT TRANSACTION
@@ -54,7 +57,7 @@ BEGIN
         BEGIN CATCH
             ROLLBACK TRANSACTION
             SELECT
-                  ERROR_NUMBER() AS ErrorNumber
+                ERROR_NUMBER() AS ErrorNumber
                  ,ERROR_SEVERITY() AS ErrorSeverity
                  ,ERROR_STATE() AS ErrorState
                  ,ERROR_PROCEDURE() AS ErrorProcedure

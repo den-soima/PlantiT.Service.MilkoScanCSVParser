@@ -61,9 +61,9 @@ namespace PlantiT.Service.MilkoScanCSVParser
             while (!stoppingToken.IsCancellationRequested)
             {
                 int milkoScanDataId = 0;
-                
+
                 //TODO: Exclude scan files in folder from FileReader
-                
+
                 // Read CSV file
                 MilkoscanFile milkoscanFile = _fileReader.ReadFile();
 
@@ -88,6 +88,7 @@ namespace PlantiT.Service.MilkoScanCSVParser
 
                     #endregion
 
+                    // Insert row to MilkoscanData
                     try
                     {
                         milkoScanDataId = await _repository.InsertMilkoScanFileData(milkoscanFile);
@@ -135,63 +136,112 @@ namespace PlantiT.Service.MilkoScanCSVParser
                         List<MilkoscanSample> samples =
                             milkoscanDataHandler.HandleData(milkoscanFile.MilkoScanFileData);
 
-                        if (samples.Count > 0)
+                        if (samples.Any())
                         {
                             // get last sample date time
 
-                            var lastAnalysisDate = await _repository.GetMilkoscanLastSampleDate();
+                            var lastSamplesNumber = await _repository.GetMilkoscanLastSamples();
 
-                            var filteredSamples = lastAnalysisDate == null? samples
-                                : samples.Where(sample => sample.AnalysisTime > lastAnalysisDate);
+                            var filteredSamples = samples.Where(sample =>
+                                !lastSamplesNumber.Contains(sample.Parameters.SampleNumber)
+                            ).ToList();
 
                             _workerLogger.WriteLog($"New samples"
                                 , $"Count = {filteredSamples.Count()}"
                                 , 2);
-                            
-                            foreach (var sample in filteredSamples)
+
+                            if (filteredSamples.Any())
                             {
-                                // Write Milkoscan sample to DB
-                                try
+                                foreach (var sample in filteredSamples)
                                 {
-                                    var milkoScanDataSampleId =
-                                        await _repository.InsertMilkoScanDataSample(milkoScanDataId,
-                                            sample);
+                                    // Write Milkoscan sample to DB
+                                    try
+                                    {
+                                        var milkoScanDataSampleId =
+                                            await _repository.InsertMilkoScanDataSample(milkoScanDataId,
+                                                sample);
 
-                                    _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
-                                        , $"id = {milkoScanDataSampleId}"
-                                        , 2);
-                                    _workerLogger.WriteLog($"Sample"
-                                        , $"data = {sample.SampleRow}"
-                                        , 3);
+                                        _workerLogger.WriteLog($"New row added to table tbl_MS_MilkoScanDataSample"
+                                            , $"id = {milkoScanDataSampleId}"
+                                            , 2);
+                                        _workerLogger.WriteLog($"Sample"
+                                            , $"data = {sample.SampleRow}"
+                                            , 3);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _workerLogger.WriteLog($"ERROR - Insert to DB"
+                                            , $"{e.Message}"
+                                            , 0);
+
+                                        _logger.LogError("Error Insert data to DB");
+                                    }
                                 }
-                                catch (Exception e)
-                                {
-                                    _workerLogger.WriteLog($"ERROR - Insert to DB"
-                                        , $"{e.Message}"
-                                        , 0);
 
-                                    _logger.LogError("Error Insert data to DB");
+                                // Archive file
+                                var result = _fileHandler.Archive(milkoscanFile.FilePath);
+
+                                if (result != null)
+                                {
+                                    _workerLogger.WriteLog($"File archived"
+                                        , $"path = {result}"
+                                        , 2);
+                                }
+                                else
+                                {
+                                    _workerLogger.WriteLog($"ERROR File archiving failed"
+                                        , $"archive path: {_serviceSettings.ArchivePath}"
+                                        , 0);
+                                }
+                            }
+                            else
+                            {
+                                // Duplicate file
+                                var affectedRows = await _repository.UpdateMilkoScanFileData(milkoScanDataId, true);
+
+                                var result = _fileHandler.Duplicate(milkoscanFile.FilePath);
+
+                                if (result != null)
+                                {
+                                    _workerLogger.WriteLog($"File duplicated"
+                                        , $"path = {result}"
+                                        , 2);
+                                }
+                                else
+                                {
+                                    _workerLogger.WriteLog($"ERROR File archiving failed"
+                                        , $"archive path: {_serviceSettings.ArchivePath}"
+                                        , 0);
                                 }
                             }
                         }
-
-                        // Archive file
-                        var result = _fileHandler.Archive(milkoscanFile.FilePath);
-
-                        if (result != null)
-                        {
-                            _workerLogger.WriteLog($"File archived"
-                                , $"path = {result}"
-                                , 2);
-                        }
                         else
                         {
-                            _workerLogger.WriteLog($"ERROR File archiving failed"
-                                , $"archive path: {_serviceSettings.ArchivePath}"
-                                , 0);
+                            _workerLogger.WriteLog($"No samples in file"
+                                , $"Count = 0"
+                                , 2);
+
+                            // Duplicate file
+                            var affectedRows = await _repository.UpdateMilkoScanFileData(milkoScanDataId, true);
+
+                            var result = _fileHandler.Duplicate(milkoscanFile.FilePath);
+
+                            if (result != null)
+                            {
+                                _workerLogger.WriteLog($"File duplicated"
+                                    , $"path = {result}"
+                                    , 2);
+                            }
+                            else
+                            {
+                                _workerLogger.WriteLog($"ERROR File archiving failed"
+                                    , $"archive path: {_serviceSettings.ArchivePath}"
+                                    , 0);
+                            }
                         }
                     }
                 }
+
                 await Task.Delay(_serviceSettings.FileReadingInterval, stoppingToken);
             }
         }

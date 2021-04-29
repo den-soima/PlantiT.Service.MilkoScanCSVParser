@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
@@ -20,9 +21,11 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             {
                 var p = new DynamicParameters();
                 p.Add("szFileName", milkoscanFile.FileName);
+                p.Add("szFileBody", String.Empty);
                 p.Add("tFileCreated", milkoscanFile.FileCreated);
                 p.Add("tFileModified", milkoscanFile.FileModified);
                 p.Add("bHasWrongStructure", milkoscanFile.HasWrongStructure);
+                p.Add("bIsDuplicate", false);
                 p.Add("nKey", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
                 await conn.QueryAsync<int>("sp_MS_MilkoScanDataInsert",
@@ -32,6 +35,24 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 );
 
                 return p.Get<int>("nKey");
+            });
+        }
+        
+        public async Task<int> UpdateMilkoScanFileData(int milkoScanDataId, bool bIsDuplicate)
+        {
+            return await WithConnection(async conn =>
+            {
+                var p = new DynamicParameters();
+                p.Add("nKey", milkoScanDataId);
+                p.Add("bIsDuplicate", bIsDuplicate);
+
+                var affectedRows =  await conn.ExecuteAsync("sp_MS_MilkoScanDataUpdate",
+                    p,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: conn.ConnectionTimeout
+                );
+
+                return affectedRows;
             });
         }
 
@@ -72,20 +93,19 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
             });
         }
 
-        public async Task<DateTime?> GetMilkoscanLastSampleDate()
+        public async Task<IEnumerable<int>> GetMilkoscanLastSamples()
         {
-            var p = new DynamicParameters();
-            p.Add("tAnalysisTime", dbType: DbType.DateTime, direction: ParameterDirection.Output);
-
-            return await WithConnection(async conn=>
+           return await WithConnection(async conn=>
             {
-                await conn.QueryAsync<DateTime?>("sp_MS_MilkoScanLastSampleDateGet",
+                var p = new DynamicParameters();
+                // p.Add("tAnalysisTime", dbType: DbType.DateTime, direction: ParameterDirection.Output);
+                var result = await conn.QueryAsync<int>("sp_MS_MilkoScanLastSamplesGet",
                     p,
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: conn.ConnectionTimeout
                 );
 
-                return p.Get<DateTime?>("tAnalysisTime");
+                return result;
             });
         }
     }
