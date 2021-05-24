@@ -9,7 +9,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].[sp_MS_MilkoScanLastSampleDateGet]
+CREATE PROCEDURE [dbo].[sp_MS_MilkoScanRelevantSampleDateGet]
   @tAnalysisTime  DATETIME = '0000-00-00 00:00:00' OUTPUT 
 AS
 
@@ -26,6 +26,6 @@ AS
 
 BEGIN
 
-    SELECT @tAnalysisTime = MAX(tAnalysisTime) FROM tbl_MS_MilkoScanDataSample 
+    SELECT @tAnalysisTime = MAX(tAnalysisTime) - 1 FROM tbl_MS_MilkoScanDataSample 
 
 END
