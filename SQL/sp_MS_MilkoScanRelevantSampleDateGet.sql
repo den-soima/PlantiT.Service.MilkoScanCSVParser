@@ -1,7 +1,7 @@
 USE [dbExchange]
 GO
 -- Drop procedure if exist
-DROP PROCEDURE IF EXISTS [dbo].[sp_MS_MilkoScanLastSampleDateGet];
+DROP PROCEDURE IF EXISTS [dbo].[sp_MS_MilkoScanRelevantSampleDateGet];
 --
 
 SET ANSI_NULLS ON
@@ -14,13 +14,13 @@ CREATE PROCEDURE [dbo].[sp_MS_MilkoScanRelevantSampleDateGet]
 AS
 
 /****************************************************************************
-   FUNCTION:   sp_MS_MilkoScanLastSampleDateGet
+   FUNCTION:   sp_MS_MilkoScanRelevantSampleDateGet
 
-   PURPOSE:    Get last analysis date
+   PURPOSE:    Get relevant analysis date
 
-   COMMENTS:   
+   COMMENTS:   Only analysis with date higher then result value will be added
  
-   CHANGES:    20.04.2021 DSO Created
+   CHANGES:    24.05.2021 DSO Created
 
 ****************************************************************************/
 

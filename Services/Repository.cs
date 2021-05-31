@@ -108,5 +108,22 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
                 return result;
             });
         }
+        
+        public async Task<DateTime?> GetMilkoscanRelevantSampleDate()
+        {
+            var p = new DynamicParameters();
+            p.Add("tAnalysisTime", dbType: DbType.DateTime, direction: ParameterDirection.Output);
+
+            return await WithConnection(async conn=>
+            {
+                await conn.QueryAsync<DateTime?>("sp_MS_MilkoScanRelevantSampleDateGet",
+                    p,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: conn.ConnectionTimeout
+                );
+
+                return p.Get<DateTime?>("tAnalysisTime");
+            });
+        }
     }
 }
