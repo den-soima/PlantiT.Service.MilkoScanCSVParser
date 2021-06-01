@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using PlantiT.Service.MilkoScanCSVParser.Helpers;
 using PlantiT.Service.MilkoScanCSVParser.Models;
@@ -11,73 +9,78 @@ namespace PlantiT.Service.MilkoScanCSVParser.Services
     public class FileReader
     {
         private readonly ServiceSettings _serviceSettings;
-        private readonly Repository _repository;
         private StreamReader _reader;
 
-        public FileReader(ServiceSettings serviceSettings, Repository repository)
+        public FileReader(ServiceSettings serviceSettings)
         {
             _serviceSettings = serviceSettings;
-            _repository = repository;
         }
 
         public MilkoscanFile ReadFile()
         {
-            string filePath = _serviceSettings.FilePath;
-
-            if (!File.Exists(filePath))
+            try
             {
-                if (Directory.Exists(filePath))
+                string filePath = _serviceSettings.FilePath;
+
+                if (!File.Exists(filePath))
                 {
-                    var files = Directory.GetFiles(filePath);
-                    foreach (var file in files)
+                    if (Directory.Exists(filePath))
                     {
-                        if (Path.GetExtension(file).ToLower() == ".csv")
+                        var files = Directory.GetFiles(filePath);
+                        foreach (var file in files)
                         {
-                            filePath = file;
-                            break;
+                            if (Path.GetExtension(file).ToLower() == ".csv")
+                            {
+                                filePath = file;
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            
-            if (!File.Exists(filePath))
-            {
-                return null;
-            }
 
-            _reader = new StreamReader(filePath);
+                if (!File.Exists(filePath))
+                {
+                    return null;
+                }
 
-            MilkoscanFile milkoscanFile = new MilkoscanFile();
-            MilkoscanFileData milkoscanFileData = new MilkoscanFileData();
+                _reader = new StreamReader(filePath);
 
-            int linePointer = 0;
-            while (!_reader.EndOfStream)
-            {
-                linePointer++;
-                var line = _reader.ReadLine();
-                var values = line?.Split(";");
-                
+                MilkoscanFile milkoscanFile = new MilkoscanFile();
+                MilkoscanFileData milkoscanFileData = new MilkoscanFileData();
+
+                int linePointer = 0;
+                while (!_reader.EndOfStream)
+                {
+                    linePointer++;
+                    var line = _reader.ReadLine();
+                    var values = line?.Split(";");
+
                     if (linePointer == 1)
                     {
                         milkoscanFileData.Key = values;
                     }
-                    else {
+                    else
+                    {
                         milkoscanFileData.Samples.Add(values);
                     }
+                }
+
+                milkoscanFile.FileName = Path.GetFileName(filePath);
+                milkoscanFile.FileCreated = File.GetCreationTime(filePath);
+                milkoscanFile.FileModified = File.GetLastWriteTime(filePath);
+                milkoscanFile.FilePath = filePath;
+                milkoscanFile.ReadingTime = DateTime.Now;
+                milkoscanFile.HasWrongStructure = milkoscanFileData?.Key?.Length != 30;
+                milkoscanFile.MilkoScanFileData = milkoscanFileData;
+
+                _reader.Close();
+                
+                return milkoscanFile;
             }
-
-            milkoscanFile.FileName = Path.GetFileName(filePath);
-            milkoscanFile.FileCreated = File.GetCreationTime(filePath);
-            milkoscanFile.FileModified = File.GetLastWriteTime(filePath);
-            milkoscanFile.FilePath = filePath;
-            milkoscanFile.ReadingTime = DateTime.Now;
-            milkoscanFile.HasWrongStructure = milkoscanFileData?.Key?.Length != 30;
-            milkoscanFile.MilkoScanFileData = milkoscanFileData;
-
-            _reader.Close();
-
-            return milkoscanFile;
+            catch(Exception)
+            {
+                return null;
+            }
         }
-        
     }
 }
